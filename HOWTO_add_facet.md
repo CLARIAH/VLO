@@ -1,3 +1,28 @@
+# Repositories involved
+
+- [https://github.com/CLARIAH/VLO](https://github.com/CLARIAH/VLO)   
+Bevat verschillende (maven) applicaties/componenten, o.a. de vlo-web-app
+vlo-distribution contains software package, numbered from POM version.
+
+- [https://gitlab.com/CLARIN-ERIC/docker-vlo-beta.git](https://github.com/CLARIAH/docker-vlo)   
+Builds Docker image for the Virtual Language Observatory using a given WAR-file.
+Currently it points a local file (REMOTE_RELEASE_URL), but should point to remote release.
+
+- [https://github.com/CLARIAH/VLO-mapping](https://github.com/CLARIAH/VLO-mapping)   
+Contains the facet definitions, amongst others. The definitions are, by default, on-the-fly retrieved from this location:   
+`VLO-mapping/config/facetsConfiguration.xml`    
+<i>Deze heb deze geforked onder wilkos-dans account, zodat ik de facet definitie zelf kan aanpassen.
+Beter is deze file uit een lokale repo te halen (vanaf disk), echter werkte dat niet zo snel.</i>
+
+- [https://github.com/CLARIAH/datasets-vlo.git](https://github.com/CLARIAH/datasets-vlo/tree/release-4.10)   
+Docker Compose configuration for the Virtual Language Observatory (Deploys the Docker image, creates the container).   
+Docker Compose configuration combines a Solr server and a VLO web app instance.
+
+# Datasets records
+The dataset records are harvested from CLARIAH and NDE Partners by the OAI-PMH Harvester Manager.   
+The `dataroots.xml` file defines the local location of the records and other stuff, like Dataprovider Name (originName).
+
+
 # Howto add new facet to VLO
 
 This howto serves as a poc for adding a new facet to the VLO. The final goal is to display the added facets on a 
