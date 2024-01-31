@@ -45,8 +45,8 @@ The importer module will load the Solr config and datasets into the Docker (see 
 Files to be modified in `vlo-web-app` module, path: `vlo-web`
 - **/src/main/resources/fieldNames.properties**: This file sets the (facet) wicket-label on the web page for each field. 
 
-Solr needs to know the field configuration before it can treat the new field as a facet. Therefore you need to add the Solr fieldname (in this example `cLp_fair_a1_1`) to the facetsConfiguration.xml file.   
-For this example, the next snippet should be added:
+Solr needs to know the field configuration before it can treat the new field as a facet. Therefore you need to add the Solr fieldname (in this example `cLp_fair_a1_1`) to the `facetsConfiguration.xml` file.   
+For now, the next xml-snippet should be added:
 ```
     <facet name="cLp_fair_a1_1">
         <displayAs>primaryFacet</displayAs>
@@ -121,16 +121,17 @@ In folder `clariah-vlo`, where all the docker compose files are located, run `do
 Also make sure that the `docker-compose.yaml` uses the correct Docker image (#LN41). Adjust if needed.
 
 ### Run importer and see the VLO portal
-- First start the apps by starting them from `datasets-vlo`:   
+- First start the apps by starting them from `datasets-vlo`:     
 ```$ ./control.sh -s -v start```   
-The (empty) VLO should be visible at: `http://localhost:38081`.
-Wicket might throw some internal error here, because the 'custom' facet field is not yet available to the app. This can be solved by running the importer in tghe next step.   
+The first time you start the VLO, it should be empty and should be visible at: `http://localhost:38081`.   
+Your newly created facet is also not available yet from SOLR.  
+When redeploying, Wicket might throw an internal error here, because the 'custom'/new facet field is not yet available to the app. This can be solved by running the importer in the next step.   
 - Now you can import the (CMDI) records:   
 ```$ ./control.sh -s -v run-import```   
 - To stop the service:   
 ```$ ./control.sh -s stop```   
 
 When starting the docker image, some file-mounts are also created.  
-F.i. some (wicket) properties files are mounted into the war.  
+I.e. some (wicket) properties files are mounted into the war.  
 Example: in `/datasets-vlo/clarin/clariah.yml`
 `./clariah/pages/FacetedSearchPage.properties:/opt/vlo/war/vlo/WEB-INF/classes/eu/clarin/cmdi/vlo/wicket/pages/FacetedSearchPage.properties`
