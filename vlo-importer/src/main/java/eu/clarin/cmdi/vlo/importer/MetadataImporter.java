@@ -12,6 +12,7 @@ import eu.clarin.cmdi.rasa.linkResources.CheckedLinkResource;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -355,7 +356,9 @@ public class MetadataImporter implements Closeable, MetadataImporterRunStatistic
         }
 
         // load mapping data provided by CLARIN's OAI-PMH harvester
-        Map<String, EndpointDescription> directoryEndpointMap = HarvesterMap.loadEndpointMap(new File(dataRoot.getRootFile().getParent(), "map.csv"));
+        String fullPath = Paths.get(dataRoot.getRootFile().getParent(), "map.csv").toString();
+        LOG.info("Loading endpoint map [" + fullPath + "]");
+        Map<String, EndpointDescription> directoryEndpointMap = HarvesterMap.loadEndpointMap(new File(fullPath));
 
         // import files from every centre/endpoint within the data root
         for (List<File> centreFiles : getFilesFromDataRoot(dataRoot.getRootFile())) {
