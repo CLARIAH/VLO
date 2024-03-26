@@ -21,7 +21,7 @@ public class CommunicationProtocolPostNormalizer extends AbstractPostNormalizer 
      */
     @Override
     public List<String> process(String value, DocFieldContainer cmdiData) {
-        System.out.println("[FAIR_A_1_1] normalize["+value+"]");
+        LOG.info("[FAIR_A_1_1] normalize["+value+"]");
         if (value == null) {
             return Collections.singletonList(null);
         } else {
