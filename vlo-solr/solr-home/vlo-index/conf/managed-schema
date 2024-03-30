@@ -182,6 +182,7 @@
     <field name="temporalCoverage_s" type="tdates" termVectors="true" multiValued="true" indexed="true" stored="true"/>
     <field name="temporalCoverage_e" type="tdates" termVectors="true" multiValued="true" indexed="true" stored="true"/>
     <field name="text" type="text_general" multiValued="true" indexed="true" stored="true"/>
+    <field name="cLp_fair_a1_1" type="boolean" multiValued="false" indexed="true" stored="true"/>
     <copyField source="_selfLink" dest="recordPid"/>
     <copyField source="text" dest="_suggester"/>
 </schema>

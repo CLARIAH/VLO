@@ -16,6 +16,7 @@
  */
 package eu.clarin.cmdi.vlo.importer;
 
+import eu.clarin.cmdi.vlo.config.IneoProviders;
 import eu.clarin.cmdi.vlo.importer.linkcheck.AvailabilityScoreAccumulator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -36,18 +37,15 @@ import eu.clarin.cmdi.vlo.importer.processor.CMDIDataProcessor;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import eu.clarin.cmdi.vlo.config.VloConfig;
+import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.clarin.cmdi.vlo.importer.solr.DocumentStore;
 import eu.clarin.cmdi.vlo.importer.solr.DocumentStoreException;
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Handles a single record in the import process
@@ -68,6 +66,7 @@ public class CMDIRecordImporter<T> {
     private final ObjectMapper objectMapper;
 
     private final static DataRoot NOOP_DATAROOT = new DataRoot("dataroot", new File("/"), "http://null", "", false);
+    private final IneoProviders ineoProviders = new IneoProviders(VloConfig.INEO_DATASETS);
 
     /**
      * Contains MDSelflinks (usually). Just to know what we have already done.
@@ -82,6 +81,47 @@ public class CMDIRecordImporter<T> {
         this.stats = importStatistics;
         this.signature = new DeduplicationSignature(signatureFieldNames);
         this.objectMapper = new ObjectMapper();
+    }
+
+    /**
+     * TODO: Go through the given CMDIData and determine whether this should be an INEO resource or not.
+     * TODO: Should return bool once ready
+     *
+     * field name: _componentProfileId, value: clarin.eu:cr1:p_1650879720846
+     * field name: cLp_fair_a1_1, value: false
+     * field name: _harvesterRoot, value: NDE
+     * field name: id, value: NDE_47_https_archief_nl_id_dataset_toegang_2_16_56_10.xml
+     * field name: _fileName, value: /srv/vlo-data/nde/cmdi/Nationaal_Archief/https_archief_nl_id_dataset_toegang_2_16_56_10.xml
+     * field name: dataProvider, value: NDE
+     * field name: metadataSource, value: https://localhost/data/nde/cmdi/Nationaal_Archief/https_archief_nl_id_dataset_toegang_2_16_56_10.xml
+     *
+     *
+     *
+     */
+    public void labelIneoRecords(CMDIData<T> cmdiData) {
+//        LOG.info(this.ineoProviders.toString());
+        SolrInputDocument doc = ((CMDIData<SolrInputDocument>) cmdiData).getDocument();
+
+        String fileName = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.FILENAME)).toString();
+        String profileId = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)).toString();
+        String providerName = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.DATA_PROVIDER)).toString();
+        String harvesterRoot = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HARVESTER_ROOT)).toString();
+        // TODO: get hierarchy level
+//        String HierarchicalLevel = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.)).toString();
+
+        if (this.ineoProviders.keys.contains(providerName)) {
+            this.ineoProviders.providers.forEach(provider -> {
+                if (provider.name.equals("Meertens Institute - Research Collections") &&
+                        provider.name.equals(providerName) &&
+                        !Objects.equals(profileId, "") &&
+                        provider.profile.equals(profileId)) {
+                    LOG.info("### This is an INEO resource {}", providerName);
+                    doc.addField("ineo_record", true);
+                }
+            });
+
+
+        }
     }
 
     /**
@@ -129,6 +169,9 @@ public class CMDIRecordImporter<T> {
                     addTechnicalMetadata(file, cmdiData, dataOrigin.orElse(NOOP_DATAROOT), endpointDescription);
                     // add resource proxys      
                     addResourceData(cmdiData);
+                    // TODO: add ineo as facet
+                    LOG.info("### " + this.ineoProviders + "###");
+                    labelIneoRecords(cmdiData);
                     // update doc in store
                     submitDocumentUpdate(document, file);
                     // mark document as completed in graph
