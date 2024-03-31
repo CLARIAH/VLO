@@ -16,6 +16,7 @@
  */
 package eu.clarin.cmdi.vlo.importer;
 
+import eu.clarin.cmdi.vlo.config.IneoProvider;
 import eu.clarin.cmdi.vlo.config.IneoProviders;
 import eu.clarin.cmdi.vlo.importer.linkcheck.AvailabilityScoreAccumulator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,28 +103,41 @@ public class CMDIRecordImporter<T> {
 //        LOG.info(this.ineoProviders.toString());
         SolrInputDocument doc = ((CMDIData<SolrInputDocument>) cmdiData).getDocument();
 
-        String fileName = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.FILENAME)).toString();
-        String profileId = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)).toString();
         String providerName = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.DATA_PROVIDER)).toString();
         String harvesterRoot = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HARVESTER_ROOT)).toString();
-        // TODO: get hierarchy level
-//        String HierarchicalLevel = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.)).toString();
 
-        if (this.ineoProviders.keys.contains(providerName)) {
-            this.ineoProviders.providers.forEach(provider -> {
-                if (provider.name.equals("Meertens Institute - Research Collections") &&
-                        provider.name.equals(providerName) &&
-                        !Objects.equals(profileId, "") &&
-                        provider.profile.equals(profileId)) {
-                    LOG.info("### This is an INEO resource {}", providerName);
-                    doc.addField("ineo_record", true);
-                }
-            });
-
-
+        Boolean ineo_record = null;
+        if (this.ineoProviders.providers.containsKey(providerName)) {
+            ineo_record = checkProvider(this.ineoProviders.providers.get(providerName), doc);
         }
+        if ((ineo_record == null) && this.ineoProviders.providers.containsKey(harvesterRoot)) {
+            ineo_record = checkProvider(this.ineoProviders.providers.get(harvesterRoot), doc);
+        }
+        if ((ineo_record == null)) {
+            ineo_record = this.ineoProviders.defaultVal;
+        }
+        if ((ineo_record == null)) {
+            ineo_record = false;
+        }
+
+        LOG.info("### Is this[{}] is an INEO resource? [{}]", providerName, ineo_record);
+        doc.addField("ineo_record", ineo_record);
     }
 
+    Boolean checkProvider(IneoProvider provider, SolrInputDocument doc) {
+        String profileId = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)).toString();
+        String hierachicalLevel = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)).toString();
+        if (provider.profile != null && provider.profile.equals(profileId)) {
+            return true;
+        }
+        if (provider.level != null && provider.profile.equals(hierachicalLevel)) {
+            return true;
+        }
+        if (provider.defaultVal != null) {
+            return provider.defaultVal.equals("true");
+        }
+        return null;
+    }
     /**
      * Process single CMDI file with CMDIDataProcessor
      *

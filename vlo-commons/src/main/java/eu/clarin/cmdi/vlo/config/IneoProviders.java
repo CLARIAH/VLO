@@ -10,18 +10,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class IneoProviders {
     protected final static Logger LOG = LoggerFactory.getLogger(IneoProviders.class);
-    public List<IneoProvider> providers;
-    public List<String> keys = new ArrayList<>();
+    public HashMap<String,IneoProvider> providers;
     public Boolean defaultVal = false;
 
     public IneoProviders(String filePath) {
 //        String filePath = "config/ineo-datasets.xml";
         providers = parseIneoConfig(filePath);
-        providers.forEach(provider -> keys.add(provider.name));
         defaultVal = getDefaultVal(filePath);
 //        providers.forEach(System.out::println);
     }
@@ -29,14 +27,14 @@ public class IneoProviders {
     @Override
     public String toString() {
         return "IneoProviders{" +
-                ", keys=" + keys +
+                ", keys=" + providers.keySet() +
                 ", defaultVal=" + defaultVal +
                 providers.size() + " providers, first one is: " + providers.get(0) +
                 '}';
     }
 
-    public List<IneoProvider> fetchProvidersFromDocument(String tag, Document doc) {
-        List<IneoProvider> providers = new ArrayList<>();
+    public HashMap<String,IneoProvider> fetchProvidersFromDocument(String tag, Document doc) {
+        HashMap<String,IneoProvider> providers = new HashMap<>();
         NodeList nList = doc.getElementsByTagName(tag);
 
         for (int temp = 0; temp < nList.getLength(); temp++) {
@@ -54,7 +52,7 @@ public class IneoProviders {
                 Node defaultNode = eElement.getElementsByTagName("default").item(0);
                 String defaultVal = defaultNode != null ? defaultNode.getTextContent() : null;
 
-                providers.add(new IneoProvider(name, profile, level, defaultVal));
+                providers.put(name,new IneoProvider(name, profile, level, defaultVal));
             }
         }
 
@@ -75,11 +73,11 @@ public class IneoProviders {
         return null;
     }
 
-    public List<IneoProvider> parseIneoConfig(String filePath) {
-        List<IneoProvider> providers = new ArrayList<>();
+    public HashMap<String,IneoProvider> parseIneoConfig(String filePath) {
+        
         Document doc = getDocument(filePath);
-        providers = fetchProvidersFromDocument("provider", doc);
-        providers.addAll(fetchProvidersFromDocument("root", doc));
+        HashMap<String,IneoProvider> providers = fetchProvidersFromDocument("provider", doc);
+        providers.putAll(fetchProvidersFromDocument("root", doc));
         return providers;
     }
 
@@ -90,6 +88,7 @@ public class IneoProviders {
         Document doc = getDocument(filePath);
         Node root = doc.getDocumentElement();
         String defaultVal = root.getAttributes().getNamedItem("default").getNodeValue();
+
         return defaultVal.equals("true");
     }
 
