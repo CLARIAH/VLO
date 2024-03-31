@@ -130,7 +130,7 @@ public class CMDIRecordImporter<T> {
         if (provider.profile != null && provider.profile.equals(profileId)) {
             return true;
         }
-        if (provider.level != null && provider.profile.equals(hierachicalLevel)) {
+        if (provider.level != null && provider.level.equals(hierachicalLevel)) {
             return true;
         }
         if (provider.defaultVal != null) {
