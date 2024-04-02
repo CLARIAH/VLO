@@ -125,8 +125,8 @@ public class CMDIRecordImporter<T> {
     }
 
     Boolean checkProvider(IneoProvider provider, SolrInputDocument doc) {
-        String profileId = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)).toString();
-        String hierachicalLevel = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)).toString();
+        String profileId = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)) != null ? doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)).toString() : null;
+        String hierachicalLevel = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)) != null ? doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)).toString() : null;
         if (provider.profile != null && provider.profile.equals(profileId)) {
             return true;
         }
