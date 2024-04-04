@@ -59,14 +59,16 @@ public class HarvesterMap {
         HashMap<String, EndpointDescription> endpointDescriptionMap = new HashMap<>();
         try {
             CSVParser parser = new CSVParserBuilder().withSeparator(',').withIgnoreQuotations(false).build();
-            CSVReader reader = new CSVReaderBuilder(new FileReader(mappingFile)).withSkipLines(1).withCSVParser(parser).build();
-            String[] lineArray;
-            while ((lineArray = reader.readNext()) != null) {
-                if (lineArray.length == 4) {
-                    EndpointDescription endpoint = new EndpointDescription(lineArray[0], lineArray[2], lineArray[3]);
-                    endpointDescriptionMap.put(lineArray[1], endpoint);
-                } else {
-                    LOG.info("Ignoring mapping line {}", Arrays.toString(lineArray));
+            try (CSVReader reader = new CSVReaderBuilder(new FileReader(mappingFile)).withCSVParser(parser).build()) {
+//            CSVReader reader = new CSVReaderBuilder(new FileReader(mappingFile)).withSkipLines(1).withCSVParser(parser).build();
+                String[] lineArray;
+                while ((lineArray = reader.readNext()) != null) {
+                    if (lineArray.length == 4) {
+                        EndpointDescription endpoint = new EndpointDescription(lineArray[0], lineArray[2], lineArray[3]);
+                        endpointDescriptionMap.put(lineArray[1], endpoint);
+                    } else {
+                        LOG.info("Ignoring mapping line {}", Arrays.toString(lineArray));
+                    }
                 }
             }
         } catch (IOException | CsvException ex) {
