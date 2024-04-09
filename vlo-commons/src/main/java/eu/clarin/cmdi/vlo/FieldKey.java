@@ -16,6 +16,7 @@ public enum FieldKey {
     COUNTRY,
     CREATOR,
     DATA_PROVIDER,
+    ineo_record,
     DESCRIPTION,
     FORMAT,
     GENRE,

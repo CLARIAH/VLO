@@ -84,56 +84,6 @@ public class CMDIRecordImporter<T> {
         this.objectMapper = new ObjectMapper();
     }
 
-    /**
-     * TODO: Go through the given CMDIData and determine whether this should be an INEO resource or not.
-     * TODO: Should return bool once ready
-     *
-     * field name: _componentProfileId, value: clarin.eu:cr1:p_1650879720846
-     * field name: cLp_fair_a1_1, value: false
-     * field name: _harvesterRoot, value: NDE
-     * field name: id, value: NDE_47_https_archief_nl_id_dataset_toegang_2_16_56_10.xml
-     * field name: _fileName, value: /srv/vlo-data/nde/cmdi/Nationaal_Archief/https_archief_nl_id_dataset_toegang_2_16_56_10.xml
-     * field name: dataProvider, value: NDE
-     * field name: metadataSource, value: https://localhost/data/nde/cmdi/Nationaal_Archief/https_archief_nl_id_dataset_toegang_2_16_56_10.xml
-     *
-     *
-     *
-     */
-    public void labelIneoRecords(CMDIData<T> cmdiData) {
-        SolrInputDocument doc = ((CMDIData<SolrInputDocument>) cmdiData).getDocument();
-
-        String providerName = getFieldValue(doc, FieldKey.DATA_PROVIDER);
-        String profileId = getFieldValue(doc, FieldKey.CLARIN_PROFILE_ID);
-        String hierarchicalLevel = getFieldValue(doc, FieldKey.HIERARCHY_WEIGHT);
-
-        boolean isRecordIneo = determineIneoRecord(providerName, profileId, hierarchicalLevel);
-
-        LOG.info("### Provider: [{}], Profile: [{}], Level: [{}], INEO: [{}]", providerName, profileId, hierarchicalLevel, isRecordIneo);
-        doc.addField("ineo_record", isRecordIneo);
-    }
-
-    private String getFieldValue(SolrInputDocument doc, FieldKey fieldKey) {
-        return Optional.ofNullable(doc.getFieldValue(fieldNameService.getFieldName(fieldKey)))
-                .map(Object::toString)
-                .orElse(null);
-    }
-
-    private boolean determineIneoRecord(String providerName, String profileId, String hierarchicalLevel) {
-        IneoProvider configProvider = this.ineoProviders.providers.get(providerName);
-
-        if (configProvider != null) {
-            return isRecordMatchingProvider(configProvider, profileId, hierarchicalLevel);
-        } else {
-            return this.ineoProviders.defaultVal.equals("true");
-        }
-    }
-
-    private boolean isRecordMatchingProvider(IneoProvider provider, String profileId, String hierarchicalLevel) {
-        return (provider.profile != null && provider.profile.equals(profileId))
-                || (provider.level != null && provider.level.equals(hierarchicalLevel))
-                || (provider.defaultVal != null && provider.defaultVal.equals("true"));
-    }
-
     Boolean checkProvider(IneoProvider provider, SolrInputDocument doc) {
         String profileId = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)) != null ? doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)).toString() : null;
         String hierachicalLevel = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)) != null ? doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)).toString() : null;
@@ -193,8 +143,6 @@ public class CMDIRecordImporter<T> {
                     addTechnicalMetadata(file, cmdiData, dataOrigin.orElse(NOOP_DATAROOT), endpointDescription);
                     // add resource proxys      
                     addResourceData(cmdiData);
-                    // TODO: add ineo as facet
-                    labelIneoRecords(cmdiData);
                     // update doc in store
                     submitDocumentUpdate(document, file);
                     // mark document as completed in graph
