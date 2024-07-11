@@ -274,7 +274,6 @@
             <xs:enumeration value="SIGNATURE" />
             <xs:enumeration value="RECORD_PID" />
             <xs:enumeration value="CREATOR" />
-            <xs:enumeration value="FAIR_A_1_1" />
             <xs:enumeration value="FAIR_SCORE" />
             <xs:enumeration value="INEO_RECORD" />
         </xs:restriction>
