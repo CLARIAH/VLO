@@ -16,8 +16,6 @@
  */
 package eu.clarin.cmdi.vlo.importer;
 
-import eu.clarin.cmdi.vlo.config.IneoProvider;
-import eu.clarin.cmdi.vlo.config.IneoProviders;
 import eu.clarin.cmdi.vlo.importer.linkcheck.AvailabilityScoreAccumulator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
@@ -67,7 +65,6 @@ public class CMDIRecordImporter<T> {
     private final ObjectMapper objectMapper;
 
     private final static DataRoot NOOP_DATAROOT = new DataRoot("dataroot", new File("/"), "http://null", "", false);
-    private final IneoProviders ineoProviders = new IneoProviders(VloConfig.INEO_DATASETS);
 
     /**
      * Contains MDSelflinks (usually). Just to know what we have already done.
@@ -84,20 +81,6 @@ public class CMDIRecordImporter<T> {
         this.objectMapper = new ObjectMapper();
     }
 
-    Boolean checkProvider(IneoProvider provider, SolrInputDocument doc) {
-        String profileId = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)) != null ? doc.getFieldValue(fieldNameService.getFieldName(FieldKey.CLARIN_PROFILE_ID)).toString() : null;
-        String hierachicalLevel = doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)) != null ? doc.getFieldValue(fieldNameService.getFieldName(FieldKey.HIERARCHY_WEIGHT)).toString() : null;
-        if (provider.profile != null && provider.profile.equals(profileId)) {
-            return true;
-        }
-        if (provider.level != null && provider.level.equals(hierachicalLevel)) {
-            return true;
-        }
-        if (provider.defaultVal != null) {
-            return provider.defaultVal.equals("true");
-        }
-        return null;
-    }
     /**
      * Process single CMDI file with CMDIDataProcessor
      *

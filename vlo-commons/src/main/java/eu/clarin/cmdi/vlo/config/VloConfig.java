@@ -31,8 +31,6 @@ public class VloConfig {
     // resources included into vlo-commons during build from vlo-mapping project
     public static final String DEFAULT_FACET_CONCEPTS_RESOURCE_FILE = "/vlo-mapping/mapping/facetConcepts.xml";
     public static final String DEFAULT_FACETS_CONFIG_RESOURCE_FILE = "/vlo-mapping/config/facetsConfiguration.xml";
-    // TODO: the uri is different than the other, needs to be checked
-    public static final String INEO_DATASETS = "/srv/VLO-mapping/config/ineo-datasets.xml";
 
     /*
      * VLO application parameter members<br><br>
