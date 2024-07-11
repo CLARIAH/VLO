@@ -116,6 +116,14 @@ Some of the shell scripts have to be adapted to your local environment.
 
 After running the script, you should have a docker image named like `vlo-${VLO_VERSION}-docker`, i.e, `vlo-4.7.1-1-docker`.
 
+### Use the right VLO-mapping release
+The environment variable `VLO_MAPPING_DEFINITIONS_DIST_URL` in the `datasets-vlo` repository should point to the correct release of the VLO-mapping repository.
+
+The repository `VLO-mapping` contains the facet definitions, amongst others. The definitions are, by default, on-the-fly retrieved from a release of this repo.
+
+It points to `test` release of [VLO-mapping](https://github.com/CLARIAH/VLO-mapping/releases/tag/test). 
+
+
 ### Running VLO
 In folder `clariah-vlo`, where all the docker compose files are located, run `docker-compose up -d`. Optionally you can add -f <location of docker compose file> to specify which docker compose file to use.  
 Also make sure that the `docker-compose.yaml` uses the correct Docker image (#LN41). Adjust if needed.
