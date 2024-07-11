@@ -96,7 +96,7 @@ public class FacetProcessorVTDXML implements FacetProcessor {
             valueWriter.writeDefaultValues(cmdiData, facetMapping);
 
             // 20230323 Vic rewriting list of string or string to boolean like value
-            rewriteBooleanValues(cmdiData, "cLp_fair_a1_1");
+//            rewriteBooleanValues(cmdiData, "cLp_fair_a1_1");
         } catch (VTDException ex) {
             throw new CMDIParsingException("VTD parsing exception while processing facets", ex);
         }
