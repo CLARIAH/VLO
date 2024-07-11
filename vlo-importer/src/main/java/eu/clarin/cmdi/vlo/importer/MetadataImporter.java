@@ -260,7 +260,6 @@ public class MetadataImporter implements Closeable, MetadataImporterRunStatistic
         registerPostProcessor(fieldNameService, imb, FieldKey.LICENSE, () -> new LicensePostNormalizer(config));
         registerPostProcessor(fieldNameService, imb, FieldKey.NAME, () -> new NamePostNormalizer());
         registerPostProcessor(fieldNameService, imb, FieldKey.CREATOR, () -> new CreatorPostNormalizer());
-        registerPostProcessor(fieldNameService, imb, FieldKey.FAIR_A_1_1, () -> new CommunicationProtocolPostNormalizer());
 
         return imb.build();
     }
